@@ -1,0 +1,15 @@
+<template>
+    <lightning-card title="Restaurants">
+        <lightning-combobox label="Cuisine" value={selectedCuisine} options={cuisineOptions} onchange={handleCuisineChange}></lightning-combobox>
+        <lightning-input type="number" label="Minimum Rating" value={minRating} onchange={handleRatingChange}></lightning-input>
+        <template if:true={restaurants.data}>
+            <template for:each={restaurants.data} for:item="res">
+                <div key={res.Id} class="slds-box slds-m-around_small">
+                    <h3>{res.Name} ({res.Cuisine__c}) - Rating: {res.Rating__c}</h3>
+                    <p>{res.Address__c}</p>
+                    <lightning-button label="View Menu" data-id={res.Id} onclick={handleViewMenu}></lightning-button>
+                </div>
+            </template>
+        </template>
+    </lightning-card>
+</template>
