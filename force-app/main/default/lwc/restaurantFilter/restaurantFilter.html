@@ -1,6 +1,13 @@
 <template>
     <lightning-card title="Filter Restaurants">
         <div class="slds-p-around_medium">
+            <lightning-input
+                type="text"
+                label="Search by Name"
+                value={searchKeyword}
+                onchange={handleKeywordChange}>
+            </lightning-input>
+
             <lightning-combobox
                 name="cuisine"
                 label="Cuisine"

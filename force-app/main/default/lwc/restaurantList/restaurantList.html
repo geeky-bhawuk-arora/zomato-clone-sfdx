@@ -3,9 +3,18 @@
         <template if:true={restaurants.data}>
             <template for:each={restaurants.data} for:item="restaurant">
                 <div key={restaurant.Id} class="slds-box slds-m-around_small">
-                    <p><strong>{restaurant.Name}</strong></p>
-                    <p>Cuisine: {restaurant.Cuisine__c}</p>
-                    <p>Rating: {restaurant.Rating__c}</p>
+                    <div class="slds-m-bottom_small">
+                        <p><strong>{restaurant.Name}</strong></p>
+                        <p>Cuisine: {restaurant.Cuisine__c}</p>
+                        <p>Rating: {restaurant.Rating__c}</p>
+                    </div>
+
+                    <lightning-button 
+                        label="View Details"
+                        data-id={restaurant.Id}
+                        onclick={handleViewDetails}
+                        class="slds-m-top_small">
+                    </lightning-button>
                 </div>
             </template>
         </template>

@@ -1,0 +1,22 @@
+<template>
+    <template if:true={restaurant}>
+        <lightning-card title={restaurant.Name}>
+            <div class="slds-p-around_medium">
+                <p><strong>Cuisine:</strong> {restaurant.Cuisine__c}</p>
+                <p><strong>Rating:</strong> {restaurant.Rating__c}</p>
+                <p><strong>Description:</strong> {restaurant.Description__c}</p>
+
+                <h3 class="slds-m-top_medium"><strong>Menu Items</strong></h3>
+                <template if:true={menuItems}>
+                    <ul>
+                        <template for:each={menuItems} for:item="item">
+                            <li key={item.Id}>
+                                🍽️ {item.Name} — ₹{item.Price__c}
+                            </li>
+                        </template>
+                    </ul>
+                </template>
+            </div>
+        </lightning-card>
+    </template>
+</template>
