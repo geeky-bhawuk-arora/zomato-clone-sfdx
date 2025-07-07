@@ -1,0 +1,20 @@
+<template>
+    <lightning-card title="Filter Restaurants">
+        <div class="slds-p-around_medium">
+            <lightning-combobox
+                name="cuisine"
+                label="Cuisine"
+                value={selectedCuisine}
+                options={cuisineOptions}
+                onchange={handleCuisineChange}>
+            </lightning-combobox>
+
+            <lightning-input
+                type="number"
+                label="Minimum Rating"
+                value={minRating}
+                onchange={handleRatingChange}>
+            </lightning-input>
+        </div>
+    </lightning-card>
+</template>
