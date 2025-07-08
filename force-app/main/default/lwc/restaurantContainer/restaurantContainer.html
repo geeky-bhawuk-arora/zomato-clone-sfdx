@@ -1,19 +1,45 @@
 <template>
-    <c-restaurant-filter onfilterchange={handleFilterChange}></c-restaurant-filter>
+    <lightning-card title="Zomato Lite">
+        <div class="slds-grid slds-wrap">
+            <!-- Filter Section -->
+            <div class="slds-col slds-size_1-of-1 slds-p-around_small">
+                <c-restaurant-filter onfilterchange={handleFilterChange}></c-restaurant-filter>
+            </div>
 
-    <template if:false={selectedRestaurantId}>
-        <c-restaurant-list
-            cuisine={selectedCuisine}
-            rating={selectedRating}
-            keyword={searchKeyword}
-            onviewdetails={handleViewDetails}>
-        </c-restaurant-list>
-    </template>
+            <!-- Restaurant List -->
+            <div class="slds-col slds-size_1-of-1 slds-p-around_small">
+                <c-restaurant-list 
+                    cuisine={selectedCuisine} 
+                    rating={selectedRating} 
+                    keyword={searchKeyword}
+                    onrestaurantselect={handleRestaurantSelect}>
+                </c-restaurant-list>
+            </div>
 
-    <template if:true={selectedRestaurantId}>
-        <c-restaurant-details restaurant-id={selectedRestaurantId}></c-restaurant-details>
-        <div class="slds-m-top_medium">
-            <lightning-button label="Back to list" onclick={handleBack}></lightning-button>
+            <!-- Menu + Cart + Reviews (only if restaurant selected) -->
+            <template if:true={selectedRestaurantId}>
+                <!-- Menu / Details -->
+                <div class="slds-col slds-size_1-of-2 slds-p-around_small">
+                    <c-restaurant-details 
+                        restaurant-id={selectedRestaurantId}
+                        oncartupdate={handleCartUpdate}>
+                    </c-restaurant-details>
+                </div>
+
+                <!-- Cart -->
+                <div class="slds-col slds-size_1-of-2 slds-p-around_small">
+                    <c-order-cart 
+                        restaurant-id={selectedRestaurantId}
+                        cart-items={cartItems}>
+                    </c-order-cart>
+                </div>
+
+                <!-- Review Form + Review List -->
+                <div class="slds-col slds-size_1-of-1 slds-p-around_small">
+                    <c-review-form restaurant-id={selectedRestaurantId}></c-review-form>
+                    <c-review-list restaurant-id={selectedRestaurantId}></c-review-list>
+                </div>
+            </template>
         </div>
-    </template>
+    </lightning-card>
 </template>
