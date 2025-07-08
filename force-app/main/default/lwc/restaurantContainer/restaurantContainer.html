@@ -1,5 +1,5 @@
 <template>
-    <lightning-card title="Zomato Lite">
+    <lightning-card title="Bhawuk's Food Ordering App">
         <div class="slds-grid slds-wrap">
             <!-- Filter Section -->
             <div class="slds-col slds-size_1-of-1 slds-p-around_small">
@@ -17,29 +17,30 @@
             </div>
 
             <!-- Menu + Cart + Reviews (only if restaurant selected) -->
-            <template if:true={selectedRestaurantId}>
+            <!-- <template if:true={selectedRestaurantId}> -->
                 <!-- Menu / Details -->
-                <div class="slds-col slds-size_1-of-2 slds-p-around_small">
+                <!-- <div class="slds-col slds-size_1-of-2 slds-p-around_small">
                     <c-restaurant-details 
                         restaurant-id={selectedRestaurantId}
                         oncartupdate={handleCartUpdate}>
                     </c-restaurant-details>
-                </div>
+                </div> -->
 
                 <!-- Cart -->
-                <div class="slds-col slds-size_1-of-2 slds-p-around_small">
+                <!-- <div class="slds-col slds-size_1-of-2 slds-p-around_small">
                     <c-order-cart 
                         restaurant-id={selectedRestaurantId}
                         cart-items={cartItems}>
                     </c-order-cart>
-                </div>
+                </div> -->
 
                 <!-- Review Form + Review List -->
-                <div class="slds-col slds-size_1-of-1 slds-p-around_small">
+                <!-- <div class="slds-col slds-size_1-of-1 slds-p-around_small">
                     <c-review-form restaurant-id={selectedRestaurantId}></c-review-form>
                     <c-review-list restaurant-id={selectedRestaurantId}></c-review-list>
                 </div>
             </template>
+        </div> -->
         </div>
     </lightning-card>
 </template>
