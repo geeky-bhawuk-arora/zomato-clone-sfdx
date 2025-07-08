@@ -12,6 +12,7 @@
             <!-- Main Content: List or Details -->
             <div class="slds-col slds-size_1-of-1 slds-medium-size_3-of-4 slds-p-left_medium">
                 <div class="slds-box slds-p-around_medium slds-theme_default">
+
                     <!-- Restaurant List -->
                     <template if:false={selectedRestaurantId}>
                         <c-restaurant-list 
@@ -23,19 +24,37 @@
 
                     <!-- Restaurant Details -->
                     <template if:true={selectedRestaurantId}>
-                        <c-restaurant-details restaurant-id={selectedRestaurantId}></c-restaurant-details>
-                        
+                        <c-restaurant-details 
+                            restaurant-id={selectedRestaurantId}
+                            oncartupdate={handleCartUpdate}>
+                        </c-restaurant-details>
+
                         <div class="slds-m-top_medium">
                             <lightning-button 
                                 variant="brand-outline" 
                                 label="Back to List" 
                                 onclick={handleBack}>
                             </lightning-button>
+
+                            <lightning-button 
+                                variant="brand"
+                                label="Go to Cart" 
+                                onclick={handleGoToCart}
+                                class="slds-m-left_small">
+                            </lightning-button>
                         </div>
+
+                        <!-- Cart Review Panel -->
+                        <template if:true={isCartVisible}>
+                            <c-cart-review 
+                                selected-items={cartItems}
+                                onplaceorder={handlePlaceOrder}>
+                            </c-cart-review>
+                        </template>
                     </template>
+
                 </div>
             </div>
-
         </div>
     </lightning-card>
 </template>

@@ -4,7 +4,6 @@ export default class RestaurantContainer extends LightningElement {
     @track selectedCuisine = '';
     @track selectedRating = '';
     @track selectedRestaurantId = null;
-    itemQuantities = {};
 
     handleFilterChange(event) {
         this.selectedCuisine = event.detail.cuisine;
@@ -25,10 +24,27 @@ export default class RestaurantContainer extends LightningElement {
         this.selectedRestaurantId = null;
     }
 
-    handleQuantityChange(event) {
-        const itemId = event.target.dataset.id;
-        const quantity = parseInt(event.target.value, 10);
-        this.itemQuantities = { ...this.itemQuantities, [itemId]: quantity };
+
+    @track selectedRestaurantId = null;
+    @track cartItems = [];
+    @track isCartVisible = false;
+
+    handleCartUpdate(event) {
+        this.cartItems = event.detail;
+        console.log('Cart updated:', JSON.stringify(this.cartItems));
     }
+
+    handleGoToCart() {
+        this.isCartVisible = true;
+    }
+
+    handlePlaceOrder() {
+        // Save order via Apex (in next step)
+        console.log('Placing order...');
+        this.isCartVisible = false;
+        this.selectedRestaurantId = null;
+        this.cartItems = [];
+    }
+
 
 }
