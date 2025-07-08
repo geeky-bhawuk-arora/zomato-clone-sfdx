@@ -1,5 +1,6 @@
 <template>
     <lightning-card title="Restaurants">
+        <!-- Success State -->
         <template if:true={restaurants.data}>
             <template for:each={restaurants.data} for:item="restaurant">
                 <div key={restaurant.Id} class="slds-box slds-m-around_small">
@@ -19,8 +20,9 @@
             </template>
         </template>
 
+        <!-- Error State -->
         <template if:true={restaurants.error}>
-            <p class="slds-text-color_error">Error loading restaurants</p>
+            <p class="slds-text-color_error">Error loading restaurants!</p>
         </template>
     </lightning-card>
 </template>

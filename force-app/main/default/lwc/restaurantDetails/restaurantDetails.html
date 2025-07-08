@@ -10,9 +10,17 @@
                 <template if:true={menuItems}>
                     <ul>
                         <template for:each={menuItems} for:item="item">
-                            <li key={item.Id}>
-                                🍽️ {item.Name} — ₹{item.Price__c}
-                            </li>
+                            <div key={item.Id} class="slds-box slds-m-around_x-small">
+                                <p><strong>{item.Name}</strong> - ₹{item.Price__c}</p>
+                                <lightning-input 
+                                    type="number" 
+                                    label="Quantity" 
+                                    min="0" 
+    
+                                    onchange={handleQuantityChange}
+                                    data-id={item.Id}>
+                                </lightning-input>
+                            </div>
                         </template>
                     </ul>
                 </template>

@@ -6,7 +6,7 @@ export default class RestaurantList extends LightningElement {
     @api rating; 
     @api keyword;
 
-    @wire(getRestaurants, { cuisine: '$cuisine', minRating: '$rating', keyword: '$keyword' })
+    @wire(getRestaurants, { cuisine: '$cuisine', minRating: '$rating' })
     restaurants;
 
     handleViewDetails(event) {

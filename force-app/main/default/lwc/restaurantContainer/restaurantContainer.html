@@ -1,59 +1,41 @@
 <template>
     <lightning-card title="Bhawuk's Food Ordering App">
-        <div class="slds-grid slds-wrap">
-            
-            <!-- Filter Section -->
-            <div class="slds-col slds-size_1-of-1 slds-p-around_small">
-                <c-restaurant-filter onfilterchange={handleFilterChange}></c-restaurant-filter>
-            </div>
+        <div class="slds-grid slds-wrap slds-p-around_medium">
 
-            <!-- Restaurant List or Details -->
-            <div class="slds-col slds-size_1-of-1 slds-p-around_small">
-                <template if:false={selectedRestaurantId}>
-                    <c-restaurant-list 
-                        cuisine={selectedCuisine}
-                        rating={selectedRating}
-                        onviewdetails={handleViewDetails}>
-                    </c-restaurant-list>
-                </template>
-
-                <template if:true={selectedRestaurantId}>
-                    <c-restaurant-details restaurant-id={selectedRestaurantId}></c-restaurant-details>
-                    <div class="slds-m-top_medium">
-                        <lightning-button 
-                            variant="brand-outline" 
-                            label="Back to List" 
-                            onclick={handleBack}>
-                        </lightning-button>
-                    </div>
-                </template>
-            </div>
-
-            <!-- Menu + Cart + Reviews (only if restaurant selected) -->
-            <!-- <template if:true={selectedRestaurantId}> -->
-                <!-- Menu / Details -->
-                <!-- <div class="slds-col slds-size_1-of-2 slds-p-around_small">
-                    <c-restaurant-details 
-                        restaurant-id={selectedRestaurantId}
-                        oncartupdate={handleCartUpdate}>
-                    </c-restaurant-details>
-                </div> -->
-
-                <!-- Cart -->
-                <!-- <div class="slds-col slds-size_1-of-2 slds-p-around_small">
-                    <c-order-cart 
-                        restaurant-id={selectedRestaurantId}
-                        cart-items={cartItems}>
-                    </c-order-cart>
-                </div> -->
-
-                <!-- Review Form + Review List -->
-                <!-- <div class="slds-col slds-size_1-of-1 slds-p-around_small">
-                    <c-review-form restaurant-id={selectedRestaurantId}></c-review-form>
-                    <c-review-list restaurant-id={selectedRestaurantId}></c-review-list>
+            <!-- Sidebar: Filter Panel -->
+            <div class="slds-col slds-size_1-of-1 slds-medium-size_1-of-4">
+                <div class="slds-box slds-theme_shade slds-p-around_medium" style="min-height: 100%;">
+                    <c-restaurant-filter onfilterchange={handleFilterChange}></c-restaurant-filter>
                 </div>
-            </template>
-        </div> -->
+            </div>
+
+            <!-- Main Content: List or Details -->
+            <div class="slds-col slds-size_1-of-1 slds-medium-size_3-of-4 slds-p-left_medium">
+                <div class="slds-box slds-p-around_medium slds-theme_default">
+                    <!-- Restaurant List -->
+                    <template if:false={selectedRestaurantId}>
+                        <c-restaurant-list 
+                            cuisine={selectedCuisine}
+                            rating={selectedRating}
+                            onviewdetails={handleViewDetails}>
+                        </c-restaurant-list>
+                    </template>
+
+                    <!-- Restaurant Details -->
+                    <template if:true={selectedRestaurantId}>
+                        <c-restaurant-details restaurant-id={selectedRestaurantId}></c-restaurant-details>
+                        
+                        <div class="slds-m-top_medium">
+                            <lightning-button 
+                                variant="brand-outline" 
+                                label="Back to List" 
+                                onclick={handleBack}>
+                            </lightning-button>
+                        </div>
+                    </template>
+                </div>
+            </div>
+
         </div>
     </lightning-card>
 </template>

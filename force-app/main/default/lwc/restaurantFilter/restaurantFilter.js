@@ -1,7 +1,6 @@
 import { LightningElement } from 'lwc';
 
 export default class RestaurantFilter extends LightningElement {
-    searchKeyword = '';
     selectedCuisine = 'Indian';
     minRating = 3;
 
@@ -10,11 +9,6 @@ export default class RestaurantFilter extends LightningElement {
         { label: 'Chinese', value: 'Chinese' },
         { label: 'Italian', value: 'Italian' },
     ];
-
-    handleKeywordChange(event) {
-        this.searchKeyword = event.detail.value;
-        this.dispatch();
-    }
 
     handleCuisineChange(event) {
         this.selectedCuisine = event.detail.value;
@@ -31,7 +25,6 @@ export default class RestaurantFilter extends LightningElement {
             detail: {
                 cuisine: this.selectedCuisine,
                 rating: this.minRating,
-                keyword: this.searchKeyword
             }
         }));
     }
