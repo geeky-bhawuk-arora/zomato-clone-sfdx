@@ -8,22 +8,16 @@ export default class RestaurantContainer extends LightningElement {
     // @track cartItems = [];
 
     handleFilterChange(event) {
-        this.selectedCuisine = event.detail.cuisine || '';
-        this.selectedRating = event.detail.rating || 0;
-        this.searchKeyword = event.detail.keyword || '';
+        this.selectedCuisine = event.detail.cuisine;
+        this.selectedRating = event.detail.rating;
     }
 
-    handleRestaurantSelect(event) {
-        const restaurantId = event.detail.restaurantId;
-        console.log('handleRestaurantSelect called with restaurantId:', restaurantId);
+    handleViewDetails(event) {
+        this.selectedRestaurantId = event.detail;
+    }
 
-        if (restaurantId) {
-            this.selectedRestaurantId = restaurantId;
-            // this.cartItems = [];
-        } else {
-            console.warn('No restaurantId found in event.detail');
-            this.selectedRestaurantId = ''; 
-        }
+    handleBack() {
+        this.selectedRestaurantId = null;
     }
 
     // Handle cart update from <c-restaurant-details>

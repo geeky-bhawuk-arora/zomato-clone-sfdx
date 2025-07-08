@@ -1,19 +1,32 @@
 <template>
     <lightning-card title="Bhawuk's Food Ordering App">
         <div class="slds-grid slds-wrap">
+            
             <!-- Filter Section -->
             <div class="slds-col slds-size_1-of-1 slds-p-around_small">
                 <c-restaurant-filter onfilterchange={handleFilterChange}></c-restaurant-filter>
             </div>
 
-            <!-- Restaurant List -->
+            <!-- Restaurant List or Details -->
             <div class="slds-col slds-size_1-of-1 slds-p-around_small">
-                <c-restaurant-list 
-                    cuisine={selectedCuisine} 
-                    rating={selectedRating} 
-                    keyword={searchKeyword}
-                    onrestaurantselect={handleRestaurantSelect}>
-                </c-restaurant-list>
+                <template if:false={selectedRestaurantId}>
+                    <c-restaurant-list 
+                        cuisine={selectedCuisine}
+                        rating={selectedRating}
+                        onviewdetails={handleViewDetails}>
+                    </c-restaurant-list>
+                </template>
+
+                <template if:true={selectedRestaurantId}>
+                    <c-restaurant-details restaurant-id={selectedRestaurantId}></c-restaurant-details>
+                    <div class="slds-m-top_medium">
+                        <lightning-button 
+                            variant="brand-outline" 
+                            label="Back to List" 
+                            onclick={handleBack}>
+                        </lightning-button>
+                    </div>
+                </template>
             </div>
 
             <!-- Menu + Cart + Reviews (only if restaurant selected) -->
