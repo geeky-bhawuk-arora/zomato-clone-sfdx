@@ -32,19 +32,24 @@ export default class RestaurantContainer extends LightningElement {
     handleCartUpdate(event) {
         this.cartItems = event.detail;
         console.log('Cart updated:', JSON.stringify(this.cartItems));
-    }
+    } // dikkat hei!
 
     handleGoToCart() {
         this.isCartVisible = true;
     }
 
-    handlePlaceOrder() {
-        // Save order via Apex (in next step)
-        console.log('Placing order...');
-        this.isCartVisible = false;
-        this.selectedRestaurantId = null;
-        this.cartItems = [];
+    // handlePlaceOrder() {
+    //     // Save order via Apex (in next step)
+    //     console.log('Placing order...');
+    //     this.isCartVisible = false;
+    //     this.selectedRestaurantId = null;
+    //     this.cartItems = [];
+    // }
+
+    handleCartUpdate(event) {
+        this.cartItems = event.detail;
     }
+
 
 
 }

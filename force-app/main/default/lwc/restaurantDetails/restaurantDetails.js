@@ -1,4 +1,4 @@
-import { LightningElement, api, wire } from 'lwc';
+import { LightningElement, api, wire, track } from 'lwc';
 import getRestaurantDetails from '@salesforce/apex/RestaurantController.getRestaurantDetails';
 import getMenuItems from '@salesforce/apex/RestaurantController.getMenuItems';
 
@@ -6,7 +6,6 @@ export default class RestaurantDetails extends LightningElement {
     @api restaurantId;
     restaurant;
     menuItems;
-    itemQuantities = {};
 
     @wire(getRestaurantDetails, { restaurantId: '$restaurantId' })
     wiredRestaurant({ error, data }) {
@@ -22,33 +21,62 @@ export default class RestaurantDetails extends LightningElement {
         }
     }
 
-    handleQuantityChange(event) {
+
+
+    // Add to Cart Fucntionality
+    @track itemQuantities = {}; 
+    @track cartItems = [];
+
+    increaseQuantity(event) {
         const itemId = event.target.dataset.id;
-        const qty = parseInt(event.target.value, 10) || 0;
-        this.itemQuantities = { ...this.itemQuantities, [itemId]: qty };
-        console.log('Updated Quantity:', this.itemQuantities);
+        const currentQty = this.itemQuantities[itemId] || 0;
+        this.itemQuantities = { ...this.itemQuantities, [itemId]: currentQty + 1 };
     }
 
-    handleReviewOrder() {
-        const selectedItems = [];
-        const items = this.menuItems.data;
+    decreaseQuantity(event) {
+        const itemId = event.target.dataset.id;
+        const currentQty = this.itemQuantities[itemId] || 0;
+        if (currentQty > 0) {
+            this.itemQuantities = { ...this.itemQuantities, [itemId]: currentQty - 1 };
+        }
+    }
 
-        for (let item of items) {
-            const quantity = this.itemQuantities[item.Id] || 0;
-            if (quantity > 0) {
-                selectedItems.push({
-                    Id: item.Id,
-                    Name: item.Name,
-                    Price__c: item.Price__c,
-                    Quantity: quantity
-                });
-            }
+    handleAddToCart(event) {
+        const itemId = event.target.dataset.id;
+        const qty = this.itemQuantities[itemId] || 0;
+        if (qty === 0) return;
+
+        const item = this.menuItems.data.find(i => i.Id === itemId);
+        if (!item) return;
+
+        // Copy cart or create new if empty
+        const newCart = [...this.cartItems];
+
+        const index = newCart.findIndex(ci => ci.Id === itemId);
+        if (index > -1) {
+            // Update existing item quantity
+            newCart[index] = { ...newCart[index], Quantity: newCart[index].Quantity + qty };
+        } else {
+            // Add new item to cart
+            newCart.push({
+                Id: item.Id,
+                Name: item.Name,
+                Price__c: item.Price__c,
+                Quantity: qty
+            });
         }
 
-        console.log('Selected Items:', JSON.stringify(selectedItems));
-        
-        this.dispatchEvent(new CustomEvent('revieworder', {
-            detail: selectedItems
-        }));
+        this.cartItems = newCart;
+
+        // Reset quantity input
+        this.itemQuantities = { ...this.itemQuantities, [itemId]: 0 };
+
+        // Notify parent
+        this.dispatchEvent(new CustomEvent('cartupdate', { detail: this.cartItems }));
+    }
+
+    // Go to Cart --> Parent to fetch the selected items
+    getSelectedItems() {
+        return this.cartItems;
     }
 }
