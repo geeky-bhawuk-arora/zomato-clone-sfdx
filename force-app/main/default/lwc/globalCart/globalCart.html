@@ -4,11 +4,15 @@
             <template for:each={allCartItems} for:item="item">
                 <div key={item.Id} class="slds-box slds-m-around_x-small">
                     <p><strong>{item.Name}</strong></p>
-                    <p>From: {item.restaurantId}</p>
+                    <p>From: {item.restaurantName}</p>
                     <p>Qty: {item.Quantity}</p>
                     <p>Total: ₹{item.LineTotal}</p>
                 </div>
             </template>
+            <!-- <c-cart-review selected-items={cartItems} onplaceorder={handlePlaceOrder}> </c-cart-review> -->
+                         <div class="slds-m-top_medium">
+                <lightning-button variant="brand" label="Checkout" onclick={handleCheckout}></lightning-button>
+            </div>
         </lightning-card>
     </template>
 </template>

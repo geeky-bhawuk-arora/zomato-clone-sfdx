@@ -1,0 +1,17 @@
+<template>
+    <lightning-card title="Order Checkout">
+        <lightning-input label="Customer Name" value={customerName} onchange={handleNameChange}></lightning-input>
+        <lightning-input label="Address" value={address} onchange={handleAddressChange}></lightning-input>
+        <lightning-input label="Phone" value={phone} onchange={handlePhoneChange}></lightning-input>
+        <h3 class="slds-m-top_medium">Order Summary</h3>
+        <template for:each={items} for:item="item">
+            <div key={item.Id} class="slds-box slds-m-around_x-small">
+                <p><strong>{item.Name}</strong> (from {item.restaurantName})</p>
+                <p>Qty: {item.Quantity} | Total: ₹{item.LineTotal}</p>
+            </div>
+        </template>
+        <div class="slds-m-top_medium">
+            <lightning-button variant="brand" label="Place Order" onclick={handlePlaceOrder}></lightning-button>
+        </div>
+    </lightning-card>
+</template>

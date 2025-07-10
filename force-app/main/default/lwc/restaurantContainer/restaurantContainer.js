@@ -51,5 +51,32 @@ export default class RestaurantContainer extends LightningElement {
     }
 
 
+   isCheckout = false;
+
+handleCheckout() {
+    this.isCheckout = true;
+}
+
+import createOrder from '@salesforce/apex/OrderController.createOrder';
+
+// ...existing code...
+
+async handlePlaceOrder(event) {
+    const { customerName, address, phone, items } = event.detail;
+    try {
+        await createOrder({ customerName, address, phone, items });
+        localStorage.removeItem('zomatoCart');
+        this.cartItems = [];
+        this.isCheckout = false;
+        // Optionally show a toast
+        // this.showToast('Order placed successfully!', 'success');
+    } catch (error) {
+        // Optionally show error toast
+        // this.showToast('Order failed: ' + error.body.message, 'error');
+        console.error('Order save failed', error);
+    }
+}
+
+
 
 }

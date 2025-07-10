@@ -9,7 +9,7 @@
                     
                 </div>
                 <div class="slds-box slds-theme_shade slds-p-around_medium" style="min-height: 100%;">
-                <c-global-cart></c-global-cart>
+                <c-global-cart oncheckout={handleCheckout}></c-global-cart>
                 </div>
             </div>
 
@@ -49,14 +49,18 @@
                         </div>
 
                         <!-- Cart Review Panel -->
-                        <!-- <template if:true={isCartVisible}>
-                            <c-cart-review 
+        
+                            <!-- <c-cart-review 
                                 selected-items={cartItems}
                                 onplaceorder={handlePlaceOrder}>
-                            </c-cart-review>
-                        </template> -->
-                    </template>
+                            </c-cart-review> -->
 
+   
+ 
+                    </template>
+                      <template if:true={isCheckout}>
+    <c-order-checkout items={cartItems} onplaceorder={handlePlaceOrder}></c-order-checkout>
+</template>
                    
 
                 </div>

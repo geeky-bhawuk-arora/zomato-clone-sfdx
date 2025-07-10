@@ -116,6 +116,7 @@ export default class RestaurantDetails extends LightningElement {
 
         const payload = {
             restaurantId: this.restaurantId,
+            restaurantName: this.restaurant?.Name,
             item: {
                 Id: item.Id,
                 Name: item.Name,

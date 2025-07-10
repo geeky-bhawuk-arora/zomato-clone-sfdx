@@ -27,7 +27,7 @@ export default class GlobalCart extends LightningElement {
     }
 
     handleCartUpdate(message) {
-        const { restaurantId, item } = message;
+        const { restaurantId, restaurantName, item } = message;
         if (!this.cart[restaurantId]) {
             this.cart[restaurantId] = [];
         }
@@ -38,7 +38,7 @@ export default class GlobalCart extends LightningElement {
             existing.Quantity += item.Quantity;
             existing.LineTotal += item.LineTotal;
         } else {
-            this.cart[restaurantId].push({ ...item });
+            this.cart[restaurantId].push({ ...item, restaurantName });
         }
 
         this.cart = { ...this.cart }; // force reactivity
@@ -46,11 +46,70 @@ export default class GlobalCart extends LightningElement {
     }
 
     get allCartItems() {
+        if (!this.cart) {
+            return [];
+        }
         return Object.entries(this.cart).flatMap(([restaurantId, items]) =>
-            items.map(item => ({
+            (items || []).map(item => ({
                 ...item,
                 restaurantId
             }))
         );
+    }
+
+    get safeSelectedItems() {
+        const items = this.allCartItems;
+        return Array.isArray(items) ? items : [];
+    }
+
+    handlePlaceOrder() {
+        // Here you would call an Apex method to save the order, if needed
+        // For now, just clear the cart and hide the review panel
+        localStorage.removeItem('zomatoCart');
+        this.cartItems = [];
+        this.isCartVisible = false;
+        this.selectedRestaurantId = null;
+        // Optionally, show a toast or confirmation
+        // this.showToast('Order placed successfully!', 'success');
+    }
+
+    handleIncrease(event) {
+        const itemId = event.target.dataset.id;
+        this.updateItemQuantity(itemId, 1);
+    }
+    handleDecrease(event) {
+        const itemId = event.target.dataset.id;
+        this.updateItemQuantity(itemId, -1);
+    }
+    handleRemove(event) {
+        const itemId = event.target.dataset.id;
+        this.removeItem(itemId);
+    }
+    handleCheckout() {
+        this.dispatchEvent(new CustomEvent('checkout'));
+    }
+    updateItemQuantity(itemId, delta) {
+        for (const restaurantId in this.cart) {
+            const idx = this.cart[restaurantId].findIndex(i => i.Id === itemId);
+            if (idx > -1) {
+                const item = this.cart[restaurantId][idx];
+                item.Quantity += delta;
+                if (item.Quantity <= 0) {
+                    this.cart[restaurantId].splice(idx, 1);
+                } else {
+                    item.LineTotal = item.Price__c * item.Quantity;
+                }
+                break;
+            }
+        }
+        this.cart = { ...this.cart };
+        localStorage.setItem('zomatoCart', JSON.stringify(this.cart));
+    }
+    removeItem(itemId) {
+        for (const restaurantId in this.cart) {
+            this.cart[restaurantId] = this.cart[restaurantId].filter(i => i.Id !== itemId);
+        }
+        this.cart = { ...this.cart };
+        localStorage.setItem('zomatoCart', JSON.stringify(this.cart));
     }
 }
