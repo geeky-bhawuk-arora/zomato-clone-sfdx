@@ -25,8 +25,9 @@
                                 </lightning-button-icon>
 
                                <span class="slds-text-heading_medium slds-m-right_medium">
-                                    {item.Quantity}
+                                    {item.quantity}
                                 </span>
+
 
 
 
@@ -47,6 +48,18 @@
                             </div>
                         </div>
                     </template>
+                    <template if:true={cartItems}>
+                        <h3 class="slds-m-top_large slds-text-heading_medium">🛒 Your Cart</h3>
+                        <template for:each={cartItems} for:item="cart">
+                            <div key={cart.Id} class="slds-box slds-m-around_x-small slds-p-around_small">
+                                <p><strong>{cart.Name}</strong></p>
+                                <p>Qty: {cart.Quantity}</p>
+                                <p>Price: ₹{cart.Price__c}</p>
+                                <p>Total: ₹{cart.LineTotal}</p>
+                            </div>
+                        </template>
+                    </template>
+
                 </template>
             </div>
         </lightning-card>

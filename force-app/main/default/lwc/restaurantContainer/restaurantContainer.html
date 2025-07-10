@@ -45,13 +45,18 @@
                         </div>
 
                         <!-- Cart Review Panel -->
-                        <template if:true={isCartVisible}>
+                        <!-- <template if:true={isCartVisible}>
                             <c-cart-review 
                                 selected-items={cartItems}
                                 onplaceorder={handlePlaceOrder}>
                             </c-cart-review>
-                        </template>
+                        </template> -->
                     </template>
+
+                    <!-- ✅ Global Cart Always Visible -->
+                    <div class="slds-m-top_large">
+                        <c-global-cart></c-global-cart>
+                    </div>
 
                 </div>
             </div>
