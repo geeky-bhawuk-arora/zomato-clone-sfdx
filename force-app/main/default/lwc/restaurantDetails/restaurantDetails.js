@@ -2,19 +2,16 @@ import { LightningElement, api, wire, track } from 'lwc';
 import getRestaurantDetails from '@salesforce/apex/RestaurantController.getRestaurantDetails';
 import getMenuItems from '@salesforce/apex/RestaurantController.getMenuItems';
 
-// import { publish, MessageContext } from 'lightning/messageService';
-// import CART_MESSAGE_CHANNEL from '@salesforce/messageChannel/CartMessageChannel__c';
+import { publish, MessageContext } from 'lightning/messageService';
+import CartMessageChannel from '@salesforce/messageChannel/CartMessageChannel__c';
 
-import { addItem } from 'c/cartService'; // singleton import
+// import { addItem } from 'c/cartService'; // singleton import
 
 export default class RestaurantDetails extends LightningElement {
     @api restaurantId;
     @track restaurant;
     @track menuItems = [];
     @track itemQuantities = {};
-
-    // @wire(MessageContext)
-    // messageContext;
 
     @wire(getRestaurantDetails, { restaurantId: '$restaurantId' })
     wiredRestaurant({ error, data }) {
@@ -105,40 +102,11 @@ export default class RestaurantDetails extends LightningElement {
     // }
 
 
-    // ---> trying to handle cart by lms - not working - 10.07.2025
+    // LMS
 
-    // handleAddToCart(event) {
-    //     const itemId = event.target.dataset.id;
-    //     const qty = this.itemQuantities[itemId] || 0;
-    //     if (qty === 0) return;
+    @wire(MessageContext) messageContext;
 
-    //     const item = this.menuItems.find(i => i.Id === itemId);
-    //     if (!item) return;
-
-    //     const payload = {
-    //         restaurantId: this.restaurantId,
-    //         item: {
-    //             Id: item.Id,
-    //             Name: item.Name,
-    //             Price__c: item.Price__c,
-    //             Quantity: qty,
-    //             LineTotal: item.Price__c * qty
-    //         }
-    //     };
-
-    //     console.log('📤 Publishing to cart LMS:', JSON.stringify(payload));
-    //     publish(this.messageContext, CART_MESSAGE_CHANNEL, payload);
-
-    //     // Reset quantity for this item
-    //     this.itemQuantities = {
-    //         ...this.itemQuantities,
-    //         [itemId]: 0
-    //     };
-    //     this.refreshMenuItems();
-    // }
-
-// singleton module
-       handleAddToCart(event) {
+    handleAddToCart(event) {
         const itemId = event.target.dataset.id;
         const qty = this.itemQuantities[itemId] || 0;
         if (qty === 0) return;
@@ -146,15 +114,46 @@ export default class RestaurantDetails extends LightningElement {
         const item = this.menuItems.find(i => i.Id === itemId);
         if (!item) return;
 
-        addItem(this.restaurantId, {
-            Id: item.Id,
-            Name: item.Name,
-            Price__c: item.Price__c,
-            Quantity: qty,
-            LineTotal: item.Price__c * qty
-        });
+        const payload = {
+            restaurantId: this.restaurantId,
+            item: {
+                Id: item.Id,
+                Name: item.Name,
+                Price__c: item.Price__c,
+                Quantity: qty,
+                LineTotal: item.Price__c * qty
+            }
+        };
 
-        this.itemQuantities = { ...this.itemQuantities, [itemId]: 0 };
-        this.refreshMenuItems();
+        console.log('Publishing to cart LMS:', JSON.stringify(payload));
+        publish(this.messageContext, CartMessageChannel, payload);
+
+        // Reset quantity for this item
+        // this.itemQuantities = {
+        //     ...this.itemQuantities,
+        //     [itemId]: 0
+        // };
+        // this.refreshMenuItems();
     }
+
+    // singleton module
+    //    handleAddToCart(event) {
+    //     const itemId = event.target.dataset.id;
+    //     const qty = this.itemQuantities[itemId] || 0;
+    //     if (qty === 0) return;
+
+    //     const item = this.menuItems.find(i => i.Id === itemId);
+    //     if (!item) return;
+
+    //     addItem(this.restaurantId, {
+    //         Id: item.Id,
+    //         Name: item.Name,
+    //         Price__c: item.Price__c,
+    //         Quantity: qty,
+    //         LineTotal: item.Price__c * qty
+    //     });
+
+    //     this.itemQuantities = { ...this.itemQuantities, [itemId]: 0 };
+    //     this.refreshMenuItems();
+    // }
 }

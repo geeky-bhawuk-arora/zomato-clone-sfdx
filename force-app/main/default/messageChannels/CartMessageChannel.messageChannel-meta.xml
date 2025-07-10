@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<LightningMessageChannel xmlns="http://soap.sforce.com/2006/04/metadata">
+    <masterLabel>CartMessageChannel</masterLabel>
+    <isExposed>true</isExposed>
+    <description>Message channel for global cart updates</description>
+    <lightningMessageFields>
+        <fieldName>restaurantId</fieldName>
+    </lightningMessageFields>
+    <lightningMessageFields>
+        <fieldName>item</fieldName>
+    </lightningMessageFields>
+</LightningMessageChannel>

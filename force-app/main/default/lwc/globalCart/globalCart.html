@@ -1,18 +1,14 @@
 <template>
-    <lightning-card title="🛒 Global Cart">
-        <template if:true={allCartItems}>
+    <template if:true={allCartItems}>
+        <lightning-card title="🛒 Global Cart">
             <template for:each={allCartItems} for:item="item">
                 <div key={item.Id} class="slds-box slds-m-around_x-small">
-                    <p><strong>{item.Name}</strong> from {item.restaurantId}</p>
+                    <p><strong>{item.Name}</strong></p>
+                    <p>From: {item.restaurantId}</p>
                     <p>Qty: {item.Quantity}</p>
                     <p>Total: ₹{item.LineTotal}</p>
                 </div>
             </template>
-            <p class="slds-text-heading_small slds-m-top_medium">Grand Total: ₹{grandTotal}</p>
-            <lightning-button label="Clear Cart" onclick={handleClearCart}></lightning-button>
-        </template>
-        <template if:false={allCartItems}>
-            <p class="slds-p-around_medium slds-text-color_weak">Your cart is empty.</p>
-        </template>
-    </lightning-card>
+        </lightning-card>
+    </template>
 </template>
