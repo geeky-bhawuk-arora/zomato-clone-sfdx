@@ -1,4 +1,5 @@
 import { LightningElement, track } from 'lwc';
+import createOrder from '@salesforce/apex/OrderController.createOrder';
 
 export default class RestaurantContainer extends LightningElement {
     @track selectedCuisine = '';
@@ -8,15 +9,14 @@ export default class RestaurantContainer extends LightningElement {
     handleFilterChange(event) {
         this.selectedCuisine = event.detail.cuisine;
         this.selectedRating = event.detail.rating;
-
-        console.log('Filter Changed');
-        console.log('Selected Cuisine:', this.selectedCuisine);
-        console.log('Selected Rating:', this.selectedRating);
+        // console.log('Filter Changed');
+        // console.log('Selected Cuisine:', this.selectedCuisine);
+        // console.log('Selected Rating:', this.selectedRating);
     }
 
     handleViewDetails(event) {
         this.selectedRestaurantId = event.detail.restaurantId;
-        console.log('View Details Clicked. Restaurant ID:', this.selectedRestaurantId);
+        // console.log('View Details Clicked. Restaurant ID:', this.selectedRestaurantId);
     }
 
     handleBack() {
@@ -29,14 +29,14 @@ export default class RestaurantContainer extends LightningElement {
     @track cartItems = [];
     @track isCartVisible = false;
 
-    handleCartUpdate(event) {
-        this.cartItems = event.detail;
-        console.log('Cart updated:', JSON.stringify(this.cartItems));
-    } // dikkat hei!
+    // handleCartUpdate(event) {
+    //     this.cartItems = event.detail;
+    //     console.log('Cart updated:', JSON.stringify(this.cartItems));
+    // }
 
-    handleGoToCart() {
-        this.isCartVisible = true;
-    }
+    // handleGoToCart() {
+    //     this.isCartVisible = true;
+    // }
 
     // handlePlaceOrder() {
     //     // Save order via Apex (in next step)
@@ -50,33 +50,30 @@ export default class RestaurantContainer extends LightningElement {
         this.cartItems = event.detail;
     }
 
+    isCheckout = false;
 
-   isCheckout = false;
+    handleCheckout() {
+        this.isCheckout = true;
+    }
 
-handleCheckout() {
-    this.isCheckout = true;
-}
+    async handlePlaceOrder(event) {
+        const { customerName, address, phone, items } = event.detail;
+        try {
+            await createOrder({ customerName, address, phone, items });
+            localStorage.removeItem('zomatoCart');
+            this.cartItems = [];
+            this.isCheckout = false;
+            // this.showToast('Order placed successfully!', 'success');
+        } catch (error) {
+            // this.showToast('Order failed: ' + error.body.message, 'error');
+            console.error('Order save failed', error);
+        }
+    }
 
-import createOrder from '@salesforce/apex/OrderController.createOrder';
-
-// ...existing code...
-
-async handlePlaceOrder(event) {
-    const { customerName, address, phone, items } = event.detail;
-    try {
-        await createOrder({ customerName, address, phone, items });
-        localStorage.removeItem('zomatoCart');
+    handleOrderPlaced() {
         this.cartItems = [];
         this.isCheckout = false;
-        // Optionally show a toast
-        // this.showToast('Order placed successfully!', 'success');
-    } catch (error) {
-        // Optionally show error toast
-        // this.showToast('Order failed: ' + error.body.message, 'error');
-        console.error('Order save failed', error);
+        // Optionally show a toast here if not handled in child
     }
 }
 
-
-
-}

@@ -1,7 +1,9 @@
 <template>
     <lightning-card title="Order Checkout">
         <lightning-input label="Customer Name" value={customerName} onchange={handleNameChange}></lightning-input>
+        <lightning-input label="Email" value={userEmail} disabled></lightning-input>
         <lightning-input label="Address" value={address} onchange={handleAddressChange}></lightning-input>
+        <lightning-input label="Billing Address" value={billingAddress} onchange={handleBillingAddressChange}></lightning-input>
         <lightning-input label="Phone" value={phone} onchange={handlePhoneChange}></lightning-input>
         <h3 class="slds-m-top_medium">Order Summary</h3>
         <template for:each={items} for:item="item">
@@ -11,6 +13,8 @@
             </div>
         </template>
         <div class="slds-m-top_medium">
+            <p><strong>Total Amount: ₹{totalAmount}</strong></p>
+            <lightning-button variant="neutral" label="Go to Cart" onclick={handleGoToCart} class="slds-m-right_small"></lightning-button>
             <lightning-button variant="brand" label="Place Order" onclick={handlePlaceOrder}></lightning-button>
         </div>
     </lightning-card>

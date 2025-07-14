@@ -1,9 +1,13 @@
 import { LightningElement, wire, track } from 'lwc';
 import { subscribe, MessageContext } from 'lightning/messageService';
 import CartMessageChannel from '@salesforce/messageChannel/CartMessageChannel__c';
+import fetchCurrentUserData from '@salesforce/apex/OrderController.fetchCurrentUserData';
 
 export default class GlobalCart extends LightningElement {
     @track cart = {};
+    showCheckoutModal = false;
+    userEmail = '';
+    userAddress = '';
 
     @wire(MessageContext)
     messageContext;
@@ -11,6 +15,19 @@ export default class GlobalCart extends LightningElement {
     connectedCallback() {
         this.loadCartFromStorage();
         this.subscribeToCart();
+        this.fetchUserData();
+    }
+
+    fetchUserData() {
+        fetchCurrentUserData()
+            .then(data => {
+                this.userEmail = data.email;
+                this.userAddress = data.address;
+            })
+            .catch(() => {
+                this.userEmail = '';
+                this.userAddress = '';
+            });
     }
 
     loadCartFromStorage() {
@@ -65,12 +82,12 @@ export default class GlobalCart extends LightningElement {
     handlePlaceOrder() {
         // Here you would call an Apex method to save the order, if needed
         // For now, just clear the cart and hide the review panel
-        localStorage.removeItem('zomatoCart');
-        this.cartItems = [];
-        this.isCartVisible = false;
-        this.selectedRestaurantId = null;
+        // localStorage.removeItem('zomatoCart');
+        // this.cartItems = [];
+        // this.isCartVisible = false;
+        // this.selectedRestaurantId = null;
         // Optionally, show a toast or confirmation
-        // this.showToast('Order placed successfully!', 'success');
+        this.showToast('Order placed successfully!', 'success');
     }
 
     handleIncrease(event) {
@@ -86,7 +103,10 @@ export default class GlobalCart extends LightningElement {
         this.removeItem(itemId);
     }
     handleCheckout() {
-        this.dispatchEvent(new CustomEvent('checkout'));
+        this.showCheckoutModal = true;
+    }
+    handleGoToCart() {
+        this.showCheckoutModal = false;
     }
     updateItemQuantity(itemId, delta) {
         for (const restaurantId in this.cart) {
@@ -111,5 +131,14 @@ export default class GlobalCart extends LightningElement {
         }
         this.cart = { ...this.cart };
         localStorage.setItem('zomatoCart', JSON.stringify(this.cart));
+    }
+    handleOrderPlaced() {
+        this.cart = {};
+        localStorage.removeItem('zomatoCart');
+        this.showCheckoutModal = false;
+        // Optionally show a toast here if not handled in child
+    }
+    get totalAmount() {
+        return this.allCartItems.reduce((sum, item) => sum + (item.LineTotal || 0), 0);
     }
 }
