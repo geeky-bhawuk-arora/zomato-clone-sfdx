@@ -11,7 +11,7 @@ export default class RestaurantList extends LightningElement {
 
     handleViewDetails(event) {
         const selectedId = event.currentTarget.dataset.id;
-        console.log('Button clicked: ' + selectedId);
+        // console.log('Button clicked: ' + selectedId);
         this.dispatchEvent(new CustomEvent('viewdetails', { 
             detail: { restaurantId: selectedId } 
         }));

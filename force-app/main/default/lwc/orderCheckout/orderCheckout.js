@@ -7,27 +7,21 @@ export default class OrderCheckout extends LightningElement {
     @api totalAmount;
     @api userEmail;
     customerName = '';
-    address = '';
+    // address = '';
     billingAddress = '';
     phone = '';
+    additionalDetails = '';
 
     handleNameChange(e) { this.customerName = e.target.value; }
-    handleAddressChange(e) { this.address = e.target.value; }
+    // handleAddressChange(e) { this.address = e.target.value; }
     handleBillingAddressChange(e) { this.billingAddress = e.target.value; }
     handlePhoneChange(e) { this.phone = e.target.value; }
+    handleAdditionalDetailsChange(e) { this.additionalDetails = e.target.value; }
 
     async handlePlaceOrder() {
-        const { customerName, address, billingAddress, phone, email, items, totalAmount } = {
-            customerName: this.customerName,
-            address: this.address,
-            billingAddress: this.billingAddress,
-            phone: this.phone,
-            email: this.userEmail,
-            items: this.items,
-            totalAmount: this.totalAmount
-        };
+        const { customerName, billingAddress, phone, additionalDetails, items } = this;
         try {
-            await createOrder({ customerName, address, phone, items });
+            await createOrder({ customerName, billingAddress, phone, additionalDetails, items });
             this.dispatchEvent(
                 new ShowToastEvent({
                     title: 'Order Placed',

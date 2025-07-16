@@ -1,0 +1,15 @@
+<apex:page standardController="Order__c">
+    <h1>Order Receipt</h1>
+    <p><b>Order ID:</b> {!Order__c.Id}</p>
+    <p><b>Customer Name:</b> {!Order__c.Name}</p>
+    <p><b>Contact No:</b> {!Order__c.Contact_No__c}</p>
+    <p><b>Status:</b> {!Order__c.Status__c}</p>
+    <p><b>Comments:</b> {!Order__c.Comments__c}</p>
+    <p><b>Additional Notes:</b> {!Order__c.Additional_Details__c}</p>
+    <h2>Order Items</h2>
+    <apex:repeat value="{!Order__c.Order_Items__r}" var="item">
+        <p>{!item.Name} (x{!item.Quantity__c})</p>
+    </apex:repeat>
+    <br/>
+    <button onclick="window.print()">Print</button>
+</apex:page>

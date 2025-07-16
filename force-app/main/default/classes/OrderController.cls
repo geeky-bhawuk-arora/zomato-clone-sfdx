@@ -1,26 +1,60 @@
 public with sharing class OrderController {
     @AuraEnabled
-    public static Id createOrder(String customerName, String address, String phone, List<Map<String, Object>> items) {
-        Order__c order = new Order__c();
-        order.Name = customerName;
-        // order.Address__c = address;
-        // order.Phone__c = phone;
-        insert order;
-
+    public static Id createOrder(String customerName, String billingAddress, String phone, String additionalDetails, List<Map<String, Object>> items) {
+        Decimal totalAmount = 0;
         List<Order_Item__c> orderItems = new List<Order_Item__c>();
+        List<String> orderDetailsLines = new List<String>();
+
         for (Map<String, Object> item : items) {
+            Menu_Item__c menuItem = [
+                SELECT Price__c 
+                FROM Menu_Item__c 
+                WHERE Id = :((Id)item.get('Id')) 
+                LIMIT 1
+            ];
+
+            Integer qty = ((Decimal)item.get('Quantity')).intValue();
+            Decimal price = menuItem.Price__c;
+            Decimal lineTotal = price * qty;
+            totalAmount += lineTotal;
+
             Order_Item__c oi = new Order_Item__c();
-            oi.Order__c = order.Id;
             oi.Menu_Item__c = (String)item.get('Id');
             oi.Name = (String)item.get('Name');
-            oi.Quantity__c = (Integer)item.get('Quantity');
-            // oi.Price__c = (Decimal)item.get('Price__c');
-            // oi.Line_Total__c = (Decimal)item.get('LineTotal');
+            oi.Quantity__c = qty;
+            // oi.Price__c = price;
+            // oi.Total_Price__c = lineTotal;
+
             orderItems.add(oi);
+
+            // Build the order details summary line
+            orderDetailsLines.add(oi.Name + ' x ' + qty + ' = ₹' + lineTotal);
+        }
+
+        // Create the order
+        Order__c order = new Order__c();
+        order.Name = customerName;
+        order.Billing_Address__c = billingAddress;
+        order.Contact_No__c = phone;
+        order.Additional_Details__c = additionalDetails;
+        order.Total_Price__c = totalAmount;
+        insert order;
+
+        // Assign order to each item and insert them
+        for (Order_Item__c oi : orderItems) {
+            oi.Order__c = order.Id;
         }
         insert orderItems;
+
+        // After inserting, update the order with the summary
+        String fullDetails = String.join(orderDetailsLines, '\n');
+        order.Order_Details__c = fullDetails;
+        update order;
+
         return order.Id;
     }
+
+
 
     @AuraEnabled(cacheable=true)
     public static Map<String, String> fetchCurrentUserData() {
@@ -42,4 +76,39 @@ public with sharing class OrderController {
         }
         return result;
     }
+
+    @AuraEnabled(cacheable=true)
+    public static List<Order__c> getRestaurantOrders() {
+        Id userId = UserInfo.getUserId();
+        return [
+            SELECT Id, Name, CreatedDate, Status__c, Comments__c, Additional_Details__c,
+                Contact_No__c, Billing_Address__c, Total_Price__c, Order_Details__c
+                // (SELECT Id, Name, Menu_Item__c, Quantity__c FROM Order_Items__r)
+            FROM Order__c
+            WHERE Restaurant__r.OwnerId = :userId
+            ORDER BY CreatedDate DESC
+        ];
+    }
+
+    @AuraEnabled(cacheable=true)
+    public static void updateOrderStatus(Id orderId, String newStatus) {
+        Order__c order = [SELECT Id FROM Order__c WHERE Id = :orderId LIMIT 1];
+        order.Status__c = newStatus;
+        update order;
+    }
+
+    // @AuraEnabled(cacheable=true)
+    // public static void sendOrderEmail(Id orderId) {
+    //     Order__c order = [
+    //         SELECT Id, Name, Customer__r.Email, Customer__r.Name, Status__c
+    //         FROM Order__c WHERE Id = :orderId LIMIT 1
+    //     ];
+    //     if (order.Customer__r != null && String.isNotBlank(order.Customer__r.Email)) {
+    //         Messaging.SingleEmailMessage mail = new Messaging.SingleEmailMessage();
+    //         mail.setToAddresses(new String[] { order.Customer__r.Email });
+    //         mail.setSubject('Your Order is Out for Delivery');
+    //         mail.setPlainTextBody('Dear ' + order.Name + ',\n\nYour order ' + order.Name + ' is now out for delivery!\n\nThank you for ordering with us.');
+    //         Messaging.sendEmail(new Messaging.SingleEmailMessage[] { mail });
+    //     }
+    // }
 }
