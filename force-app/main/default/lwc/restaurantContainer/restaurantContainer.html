@@ -1,9 +1,9 @@
-<template>
-    <lightning-card title="Bhawuk's Food Ordering App">
-        <div class="slds-grid slds-wrap slds-p-around_medium">
+<!-- <template>
+    <lightning-card title="Welcome to Tomato — Your Ultimate Food Discovery & Ordering Hub!">
+        <div class="slds-grid slds-wrap slds-p-around_medium"> -->
 
             <!-- Sidebar: Filter Panel -->
-            <div class="slds-col slds-size_1-of-1 slds-medium-size_1-of-4">
+            <!-- <div class="slds-col slds-size_1-of-1 slds-medium-size_1-of-4">
                 <div class="slds-box slds-theme_shade slds-p-around_medium" style="min-height: 100%;">
                     <c-restaurant-filter onfilterchange={handleFilterChange}></c-restaurant-filter>
                     
@@ -11,10 +11,84 @@
                 <div class="slds-box slds-theme_shade slds-p-around_medium" style="min-height: 100%;">
                 <c-global-cart oncheckout={handleCheckout}></c-global-cart>
                 </div>
-            </div>
+            </div> -->
 
             <!-- Main Content: List or Details -->
-            <div class="slds-col slds-size_1-of-1 slds-medium-size_3-of-4 slds-p-left_medium">
+            <!-- <div class="slds-col slds-size_1-of-1 slds-medium-size_3-of-4 slds-p-left_medium">
+                <div class="slds-box slds-p-around_medium slds-theme_default"> -->
+
+                    <!-- Restaurant List -->
+                    <!-- <template if:false={selectedRestaurantId}>
+                        <c-restaurant-list 
+                            cuisine={selectedCuisine}
+                            rating={selectedRating}
+                            onviewdetails={handleViewDetails}>
+                        </c-restaurant-list>
+                    </template> -->
+
+                    <!-- Restaurant Details -->
+                    <!-- <template if:true={selectedRestaurantId}>
+                        <c-restaurant-details 
+                            restaurant-id={selectedRestaurantId}
+                            oncartupdate={handleCartUpdate}>
+                        </c-restaurant-details>
+
+                        <div class="slds-m-top_medium">
+                            <lightning-button 
+                                variant="brand-outline" 
+                                label="Back to List" 
+                                onclick={handleBack}>
+                            </lightning-button>
+
+                            <lightning-button 
+                                variant="brand"
+                                label="Go to Cart" 
+                                onclick={handleGoToCart}
+                                class="slds-m-left_small">
+                            </lightning-button>
+                        </div> -->
+
+                        <!-- Cart Review Panel -->
+        
+                            <!-- <c-cart-review 
+                                selected-items={cartItems}
+                                onplaceorder={handlePlaceOrder}>
+                            </c-cart-review> -->
+
+   
+<!--  
+                    </template>
+                      <template if:true={isCheckout}>
+    <c-order-checkout items={cartItems} onplaceorder={handlePlaceOrder}></c-order-checkout>
+</template>
+                   
+
+                </div>
+            </div>
+        </div>
+    </lightning-card>
+</template> -->
+
+<template>
+    <lightning-card>
+
+        <!-- Floating Cart on Right (Swiggy style) -->
+        <c-navbar item-count={cartItems.length} oncheckout={handleCheckout}></c-navbar>
+
+        <!-- Category Image Carousel -->
+        <!-- <div class="slds-m-bottom_medium">
+            <c-cuisine-carousel oncuisineclick={handleCuisineClick}></c-cuisine-carousel>
+        </div> -->
+
+        <!-- Optional: Top Filters Bar -->
+        <div class="slds-m-bottom_medium filter-bar">
+            <c-restaurant-filter onfilterchange={handleFilterChange}></c-restaurant-filter>
+        </div>
+
+        <div class="slds-grid slds-wrap slds-p-around_medium">
+
+            <!-- Main Content: List or Details -->
+            <div class="slds-col slds-size_1-of-1">
                 <div class="slds-box slds-p-around_medium slds-theme_default">
 
                     <!-- Restaurant List -->
@@ -26,7 +100,7 @@
                         </c-restaurant-list>
                     </template>
 
-                    <!-- Restaurant Details -->
+                    <!-- Restaurant Details View -->
                     <template if:true={selectedRestaurantId}>
                         <c-restaurant-details 
                             restaurant-id={selectedRestaurantId}
@@ -47,21 +121,15 @@
                                 class="slds-m-left_small">
                             </lightning-button>
                         </div>
-
-                        <!-- Cart Review Panel -->
-        
-                            <!-- <c-cart-review 
-                                selected-items={cartItems}
-                                onplaceorder={handlePlaceOrder}>
-                            </c-cart-review> -->
-
-   
- 
                     </template>
-                      <template if:true={isCheckout}>
-    <c-order-checkout items={cartItems} onplaceorder={handlePlaceOrder}></c-order-checkout>
-</template>
-                   
+
+                    <!-- Checkout Screen -->
+                    <template if:true={isCheckout}>
+                        <c-order-checkout 
+                            items={cartItems} 
+                            onplaceorder={handlePlaceOrder}>
+                        </c-order-checkout>
+                    </template>
 
                 </div>
             </div>

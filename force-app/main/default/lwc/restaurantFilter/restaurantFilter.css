@@ -1,0 +1,19 @@
+.filter-bar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1.5rem;
+  align-items: center;
+  background: #fff4ec; /* Light orange like Swiggy */
+  padding: 1rem 1.5rem;
+  border-radius: 12px;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+  margin-bottom: 1rem;
+}
+
+lightning-combobox,
+lightning-input {
+  --slds-c-input-radius-border: 8px;
+  --slds-c-input-color-border: #ff6f00;
+  --slds-c-input-color-border-focus: #ff6f00;
+  min-width: 200px;
+}

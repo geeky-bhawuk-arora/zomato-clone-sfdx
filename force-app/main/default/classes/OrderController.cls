@@ -1,58 +1,149 @@
 public with sharing class OrderController {
+    // @AuraEnabled
+    // public static Id createOrder(String customerName, String billingAddress, String phone, String additionalDetails, List<Map<String, Object>> items) {
+    //     Decimal totalAmount = 0;
+    //     List<Order_Item__c> orderItems = new List<Order_Item__c>();
+    //     List<String> orderDetailsLines = new List<String>();
+
+    //     for (Map<String, Object> item : items) {
+    //         Menu_Item__c menuItem = [
+    //             SELECT Price__c 
+    //             FROM Menu_Item__c 
+    //             WHERE Id = :((Id)item.get('Id')) 
+    //             LIMIT 1
+    //         ];
+
+    //         Integer qty = ((Decimal)item.get('Quantity')).intValue();
+    //         Decimal price = menuItem.Price__c;
+    //         Decimal lineTotal = price * qty;
+    //         totalAmount += lineTotal;
+
+    //         Order_Item__c oi = new Order_Item__c();
+    //         oi.Menu_Item__c = (String)item.get('Id');
+    //         oi.Name = (String)item.get('Name');
+    //         oi.Quantity__c = qty;
+    //         // oi.Price__c = price;
+    //         // oi.Total_Price__c = lineTotal;
+
+    //         orderItems.add(oi);
+
+    //         // Build the order details summary line
+    //         orderDetailsLines.add(oi.Name + ' x ' + qty + ' = ₹' + lineTotal);
+    //     }
+
+    //     // Create the order
+    //     Order__c order = new Order__c();
+    //     order.Name = customerName;
+    //     order.Billing_Address__c = billingAddress;
+    //     order.Contact_No__c = phone;
+    //     order.Additional_Details__c = additionalDetails;
+    //     order.Total_Price__c = totalAmount;
+    //     insert order;
+
+    //     // Assign order to each item and insert them
+    //     for (Order_Item__c oi : orderItems) {
+    //         oi.Order__c = order.Id;
+    //     }
+    //     insert orderItems;
+
+    //     // After inserting, update the order with the summary
+    //     String fullDetails = String.join(orderDetailsLines, '\n');
+    //     order.Order_Details__c = fullDetails;
+    //     update order;
+
+    //     return order.Id;
+    // }
+
     @AuraEnabled
-    public static Id createOrder(String customerName, String billingAddress, String phone, String additionalDetails, List<Map<String, Object>> items) {
-        Decimal totalAmount = 0;
-        List<Order_Item__c> orderItems = new List<Order_Item__c>();
-        List<String> orderDetailsLines = new List<String>();
+    public static List<Id> createOrder(String customerName, String billingAddress, String phone, String additionalDetails, List<Map<String, Object>> items) {
+        if (items == null || items.isEmpty()) {
+            throw new AuraHandledException('Item list cannot be empty.');
+        }
+
+        // Collect item IDs
+        Set<Id> menuItemIds = new Set<Id>();
+        for (Map<String, Object> item : items) {
+            menuItemIds.add((Id)item.get('Id'));
+        }
+
+        // Query Menu_Items with Restaurant
+        Map<Id, Menu_Item__c> menuItemMap = new Map<Id, Menu_Item__c>(
+            [SELECT Id, Price__c, Restaurant__c, Restaurant__r.Name FROM Menu_Item__c WHERE Id IN :menuItemIds]
+        );
+
+        // Group items by Restaurant
+        Map<Id, List<Map<String, Object>>> restaurantToItems = new Map<Id, List<Map<String, Object>>>();
+        Map<Id, String> restaurantNames = new Map<Id, String>();
 
         for (Map<String, Object> item : items) {
-            Menu_Item__c menuItem = [
-                SELECT Price__c 
-                FROM Menu_Item__c 
-                WHERE Id = :((Id)item.get('Id')) 
-                LIMIT 1
-            ];
+            Id itemId = (Id)item.get('Id');
+            Menu_Item__c mi = menuItemMap.get(itemId);
+            if (mi == null || mi.Restaurant__c == null) continue;
 
-            Integer qty = ((Decimal)item.get('Quantity')).intValue();
-            Decimal price = menuItem.Price__c;
-            Decimal lineTotal = price * qty;
-            totalAmount += lineTotal;
+            if (!restaurantToItems.containsKey(mi.Restaurant__c)) {
+                restaurantToItems.put(mi.Restaurant__c, new List<Map<String, Object>>());
+                restaurantNames.put(mi.Restaurant__c, mi.Restaurant__r.Name);
+            }
 
-            Order_Item__c oi = new Order_Item__c();
-            oi.Menu_Item__c = (String)item.get('Id');
-            oi.Name = (String)item.get('Name');
-            oi.Quantity__c = qty;
-            // oi.Price__c = price;
-            // oi.Total_Price__c = lineTotal;
-
-            orderItems.add(oi);
-
-            // Build the order details summary line
-            orderDetailsLines.add(oi.Name + ' x ' + qty + ' = ₹' + lineTotal);
+            restaurantToItems.get(mi.Restaurant__c).add(item);
         }
 
-        // Create the order
-        Order__c order = new Order__c();
-        order.Name = customerName;
-        order.Billing_Address__c = billingAddress;
-        order.Contact_No__c = phone;
-        order.Additional_Details__c = additionalDetails;
-        order.Total_Price__c = totalAmount;
-        insert order;
+        List<Id> createdOrderIds = new List<Id>();
 
-        // Assign order to each item and insert them
-        for (Order_Item__c oi : orderItems) {
-            oi.Order__c = order.Id;
+        // For each restaurant, create an order
+        for (Id restId : restaurantToItems.keySet()) {
+            List<Map<String, Object>> restItems = restaurantToItems.get(restId);
+            Decimal totalAmount = 0;
+            List<Order_Item__c> orderItems = new List<Order_Item__c>();
+            List<String> orderDetailsLines = new List<String>();
+
+            for (Map<String, Object> item : restItems) {
+                Id itemId = (Id)item.get('Id');
+                Menu_Item__c menuItem = menuItemMap.get(itemId);
+                if (menuItem == null) continue;
+
+                Integer qty = ((Decimal)item.get('Quantity')).intValue();
+                Decimal price = menuItem.Price__c;
+                Decimal lineTotal = price * qty;
+                totalAmount += lineTotal;
+
+                Order_Item__c oi = new Order_Item__c();
+                oi.Menu_Item__c = itemId;
+                oi.Name = (String)item.get('Name');
+                oi.Quantity__c = qty;
+                // oi.Price__c = price;
+                // oi.Total_Price__c = lineTotal;
+                orderItems.add(oi);
+
+                orderDetailsLines.add(oi.Name + ' x ' + qty + ' = ₹' + lineTotal.setScale(2));
+            }
+
+            Order__c order = new Order__c(
+                Name = customerName,
+                Billing_Address__c = billingAddress,
+                Contact_No__c = phone,
+                Additional_Details__c = additionalDetails,
+                Total_Price__c = totalAmount,
+                Status__c = 'Order Placed',
+                Restaurant__c = restId
+            );
+            insert order;
+
+            for (Order_Item__c oi : orderItems) {
+                oi.Order__c = order.Id;
+            }
+            insert orderItems;
+
+            order.Order_Details__c = String.join(orderDetailsLines, '\n');
+            update order;
+
+            createdOrderIds.add(order.Id);
         }
-        insert orderItems;
 
-        // After inserting, update the order with the summary
-        String fullDetails = String.join(orderDetailsLines, '\n');
-        order.Order_Details__c = fullDetails;
-        update order;
-
-        return order.Id;
+        return createdOrderIds;
     }
+
+
 
 
 

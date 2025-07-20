@@ -1,4 +1,4 @@
-<template>
+<!-- <template>
     <lightning-card title="Filter Restaurants">
         <div class="slds-p-around_medium">
             <lightning-combobox
@@ -17,4 +17,27 @@
             </lightning-input>
         </div>
     </lightning-card>
+</template> -->
+
+<!-- topFilters.html -->
+<template>
+  <div class="filter-bar">
+    <lightning-combobox
+      name="cuisine"
+      label="Cuisine"
+      value={selectedCuisine}
+      options={cuisineOptions}
+      onchange={handleCuisineChange}>
+    </lightning-combobox>
+
+    <lightning-input
+      name="minRating"
+      label="Min Rating"
+      value={minRating}
+      type="number"
+      min="0"
+      max="5"
+      onchange={handleRatingChange}>
+    </lightning-input>
+  </div>
 </template>

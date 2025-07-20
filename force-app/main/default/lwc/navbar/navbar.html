@@ -1,0 +1,20 @@
+<template>
+  <div class="navbar">
+    <div class="navbar-left">
+      <h1 class="brand-title">🍅 Tomato</h1>
+    </div>
+
+    <div class="navbar-right">
+      <div class="cart-icon" onclick={toggleCart}>
+        🛒 Cart ({itemCount})
+      </div>
+    </div>
+  </div>
+
+  <!-- Cart Panel (Dropdown Style) -->
+  <template if:true={isCartOpen}>
+    <div class="cart-dropdown">
+      <c-global-cart oncheckout={handleCheckout}></c-global-cart>
+    </div>
+  </template>
+</template>

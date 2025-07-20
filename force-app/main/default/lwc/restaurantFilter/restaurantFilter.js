@@ -1,30 +1,31 @@
-import { LightningElement } from 'lwc';
+import { LightningElement, track } from 'lwc';
 
 export default class RestaurantFilter extends LightningElement {
-    selectedCuisine = 'Indian';
-    minRating = 3;
+    @track selectedCuisine = 'Indian';
+    @track minRating = 3;
 
     cuisineOptions = [
         { label: 'Indian', value: 'Indian' },
         { label: 'Chinese', value: 'Chinese' },
-        { label: 'Italian', value: 'Italian' },
+        { label: 'Italian', value: 'Italian' }
     ];
 
     handleCuisineChange(event) {
         this.selectedCuisine = event.detail.value;
-        this.dispatch();
+        this.dispatchFilterChange();
     }
 
     handleRatingChange(event) {
-        this.minRating = event.detail.value;
-        this.dispatch();
+        const value = event.detail.value;
+        this.minRating = value !== '' ? parseFloat(value) : null;
+        this.dispatchFilterChange();
     }
 
-    dispatch() {
+    dispatchFilterChange() {
         this.dispatchEvent(new CustomEvent('filterchange', {
             detail: {
                 cuisine: this.selectedCuisine,
-                rating: this.minRating,
+                rating: this.minRating
             }
         }));
     }

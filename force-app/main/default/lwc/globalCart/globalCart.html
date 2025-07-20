@@ -1,5 +1,6 @@
-<template>
+<!-- <template>
     <template if:true={allCartItems}>
+        <div class="floating-cart">
         <lightning-card title="🛒 Global Cart">
             <template for:each={allCartItems} for:item="item">
                 <div key={item.Id} class="slds-box slds-m-around_x-small">
@@ -14,6 +15,7 @@
                 <lightning-button variant="brand" label="Checkout" onclick={handleCheckout}></lightning-button>    
             </div>
         </lightning-card>
+        </div>
     </template>
     <template if:true={showCheckoutModal}>
         <section role="dialog" tabindex="-1" aria-modal="true" class="slds-modal slds-fade-in-open">
@@ -32,6 +34,61 @@
                 </div>
                 <footer class="slds-modal__footer">
                     <lightning-button variant="neutral" label="Close" onclick={handleGoToCart}></lightning-button>
+                </footer>
+            </div>
+        </section>
+        <div class="slds-backdrop slds-backdrop_open"></div>
+    </template>
+</template> -->
+
+<template>
+    <lightning-card title="Your Cart">
+        <template if:true={safeSelectedItems.length}>
+            <div class="slds-box slds-box_xx-small">
+                <template for:each={safeSelectedItems} for:item="item">
+                    <div key={item.Id} class="slds-p-bottom_small slds-border_bottom">
+                        <strong>{item.Name}</strong>
+                        <div>Restaurant: {item.restaurantName}</div>
+                        <div>Quantity: {item.Quantity}</div>
+                        <div>Price: ₹{item.Price__c}</div>
+                        <div>Total: ₹{item.LineTotal}</div>
+                        <lightning-button-group>
+                            <lightning-button-icon icon-name="utility:add" alternative-text="Increase"
+                                title="Increase" data-id={item.Id} onclick={handleIncrease}></lightning-button-icon>
+                            <lightning-button-icon icon-name="utility:dash" alternative-text="Decrease"
+                                title="Decrease" data-id={item.Id} onclick={handleDecrease}></lightning-button-icon>
+                            <lightning-button-icon icon-name="utility:delete" alternative-text="Remove"
+                                title="Remove" data-id={item.Id} onclick={handleRemove}></lightning-button-icon>
+                        </lightning-button-group>
+                    </div>
+                </template>
+                <div class="slds-p-top_medium slds-text-align_right">
+                    <strong>Total: ₹{totalAmount}</strong>
+                </div>
+                <div class="slds-p-top_small slds-text-align_right">
+                    <lightning-button label="Checkout" onclick={handleCheckout}></lightning-button>
+                </div>
+            </div>
+        </template>
+        <template if:false={safeSelectedItems.length}>
+            <p class="slds-p-around_medium">Your cart is empty.</p>
+        </template>
+    </lightning-card>
+
+    <template if:true={showCheckoutModal}>
+        <section role="dialog" tabindex="-1" class="slds-modal slds-fade-in-open">
+            <div class="slds-modal__container">
+                <header class="slds-modal__header">
+                    <h2 class="slds-modal__title">Confirm Order</h2>
+                </header>
+                <div class="slds-modal__content slds-p-around_medium">
+                    <p><strong>Email:</strong> {userEmail}</p>
+                    <p><strong>Address:</strong> {userAddress}</p>
+                    <p><strong>Total Amount:</strong> ₹{totalAmount}</p>
+                </div>
+                <footer class="slds-modal__footer">
+                    <lightning-button label="Place Order" variant="brand" onclick={handlePlaceOrder}></lightning-button>
+                    <lightning-button label="Cancel" onclick={handleGoToCart}></lightning-button>
                 </footer>
             </div>
         </section>

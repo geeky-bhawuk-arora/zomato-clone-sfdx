@@ -2,8 +2,8 @@ import { LightningElement, track } from 'lwc';
 import createOrder from '@salesforce/apex/OrderController.createOrder';
 
 export default class RestaurantContainer extends LightningElement {
-    @track selectedCuisine = '';
-    @track selectedRating = '';
+    @track selectedCuisine = null;
+    @track selectedRating = null;
     @track selectedRestaurantId = null;
 
     handleFilterChange(event) {

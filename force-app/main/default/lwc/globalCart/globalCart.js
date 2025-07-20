@@ -1,5 +1,5 @@
 import { LightningElement, wire, track } from 'lwc';
-import { subscribe, MessageContext } from 'lightning/messageService';
+import { subscribe, publish, MessageContext } from 'lightning/messageService';
 import CartMessageChannel from '@salesforce/messageChannel/CartMessageChannel__c';
 import fetchCurrentUserData from '@salesforce/apex/OrderController.fetchCurrentUserData';
 
@@ -34,6 +34,10 @@ export default class GlobalCart extends LightningElement {
         const stored = localStorage.getItem('zomatoCart');
         if (stored) {
             this.cart = JSON.parse(stored);
+            // Publish initial cart state so navbar updates badge count on page load
+            publish(this.messageContext, CartMessageChannel, {
+                cartSnapshot: this.cart
+            });
         }
     }
 
@@ -44,7 +48,12 @@ export default class GlobalCart extends LightningElement {
     }
 
     handleCartUpdate(message) {
+        // When receiving a cart message from others (like adding items), update local cart
+        if (!message) return;
         const { restaurantId, restaurantName, item } = message;
+
+        if (!restaurantId || !item) return; // defensive check
+
         if (!this.cart[restaurantId]) {
             this.cart[restaurantId] = [];
         }
@@ -59,7 +68,12 @@ export default class GlobalCart extends LightningElement {
         }
 
         this.cart = { ...this.cart }; // force reactivity
-        localStorage.setItem('zomatoCart', JSON.stringify(this.cart)); // persist cart
+        localStorage.setItem('zomatoCart', JSON.stringify(this.cart));
+
+        // Publish updated cart for other listeners (like navbar)
+        publish(this.messageContext, CartMessageChannel, {
+            cartSnapshot: this.cart
+        });
     }
 
     get allCartItems() {
@@ -80,13 +94,14 @@ export default class GlobalCart extends LightningElement {
     }
 
     handlePlaceOrder() {
-        // Here you would call an Apex method to save the order, if needed
-        // For now, just clear the cart and hide the review panel
-        // localStorage.removeItem('zomatoCart');
-        // this.cartItems = [];
-        // this.isCartVisible = false;
-        // this.selectedRestaurantId = null;
-        // Optionally, show a toast or confirmation
+        // Your order placing logic here, then clear cart
+        this.cart = {};
+        localStorage.removeItem('zomatoCart');
+        this.showCheckoutModal = false;
+        // Publish cleared cart state
+        publish(this.messageContext, CartMessageChannel, {
+            cartSnapshot: this.cart
+        });
         this.showToast('Order placed successfully!', 'success');
     }
 
@@ -94,20 +109,25 @@ export default class GlobalCart extends LightningElement {
         const itemId = event.target.dataset.id;
         this.updateItemQuantity(itemId, 1);
     }
+
     handleDecrease(event) {
         const itemId = event.target.dataset.id;
         this.updateItemQuantity(itemId, -1);
     }
+
     handleRemove(event) {
         const itemId = event.target.dataset.id;
         this.removeItem(itemId);
     }
+
     handleCheckout() {
         this.showCheckoutModal = true;
     }
+
     handleGoToCart() {
         this.showCheckoutModal = false;
     }
+
     updateItemQuantity(itemId, delta) {
         for (const restaurantId in this.cart) {
             const idx = this.cart[restaurantId].findIndex(i => i.Id === itemId);
@@ -116,6 +136,9 @@ export default class GlobalCart extends LightningElement {
                 item.Quantity += delta;
                 if (item.Quantity <= 0) {
                     this.cart[restaurantId].splice(idx, 1);
+                    if(this.cart[restaurantId].length === 0) {
+                        delete this.cart[restaurantId];
+                    }
                 } else {
                     item.LineTotal = item.Price__c * item.Quantity;
                 }
@@ -124,20 +147,48 @@ export default class GlobalCart extends LightningElement {
         }
         this.cart = { ...this.cart };
         localStorage.setItem('zomatoCart', JSON.stringify(this.cart));
+
+        // Publish updated cart
+        publish(this.messageContext, CartMessageChannel, {
+            cartSnapshot: this.cart
+        });
     }
+
     removeItem(itemId) {
         for (const restaurantId in this.cart) {
             this.cart[restaurantId] = this.cart[restaurantId].filter(i => i.Id !== itemId);
+            if(this.cart[restaurantId].length === 0) {
+                delete this.cart[restaurantId];
+            }
         }
         this.cart = { ...this.cart };
         localStorage.setItem('zomatoCart', JSON.stringify(this.cart));
+
+        // Publish updated cart
+        publish(this.messageContext, CartMessageChannel, {
+            cartSnapshot: this.cart
+        });
     }
+
     handleOrderPlaced() {
         this.cart = {};
         localStorage.removeItem('zomatoCart');
         this.showCheckoutModal = false;
-        // Optionally show a toast here if not handled in child
+
+        // Publish cleared cart
+        publish(this.messageContext, CartMessageChannel, {
+            cartSnapshot: this.cart
+        });
     }
+
+    showToast(message, variant = 'info') {
+        const evt = new ShowToastEvent({
+            message,
+            variant,
+        });
+        this.dispatchEvent(evt);
+    }
+
     get totalAmount() {
         return this.allCartItems.reduce((sum, item) => sum + (item.LineTotal || 0), 0);
     }

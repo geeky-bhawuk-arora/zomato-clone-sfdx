@@ -1,0 +1,33 @@
+.floating-cart {
+  position: fixed;
+  top: 100px;
+  right: 30px;
+  width: 320px;
+  z-index: 1000;
+}
+
+.slds-box {
+  border-radius: 10px;
+  background: #f9f9f9;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+}
+
+lightning-card {
+  border-radius: 12px;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.12);
+}
+
+.slds-box p {
+  margin: 4px 0;
+  font-size: 14px;
+}
+
+.slds-box strong {
+  font-weight: 600;
+  font-size: 15px;
+}
+
+.slds-m-top_medium {
+  padding: 1rem 0;
+  border-top: 1px solid #ccc;
+}

@@ -1,0 +1,13 @@
+* {
+  font-family: 'Poppins', sans-serif;
+}
+
+.slds-box {
+  border-radius: 12px;
+  background-color: #ffffff;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.06);
+}
+
+h3, p {
+  color: #333;
+}

@@ -1,0 +1,17 @@
+<apex:page controller="ReviewPageController">
+    <apex:messages />
+    
+    <apex:outputPanel rendered="{!invalidToken}">
+        <h3>This review link is invalid or has already been used.</h3>
+    </apex:outputPanel>
+
+    <apex:outputPanel rendered="{!NOT(invalidToken)}">
+        <h1>Leave a Review</h1>
+        <apex:form>
+            <apex:inputText value="{!reviewerName}" label="Your Name" />
+            <apex:inputTextarea value="{!comments}" label="Comments" />
+            <apex:inputText value="{!rating}" label="Rating (1-5)" />
+            <apex:commandButton value="Submit Review" action="{!submitReview}" />
+        </apex:form>
+    </apex:outputPanel>
+</apex:page>
