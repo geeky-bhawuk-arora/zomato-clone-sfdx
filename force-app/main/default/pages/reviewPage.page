@@ -1,17 +1,109 @@
-<apex:page controller="ReviewPageController">
-    <apex:messages />
-    
-    <apex:outputPanel rendered="{!invalidToken}">
-        <h3>This review link is invalid or has already been used.</h3>
-    </apex:outputPanel>
+<apex:page controller="ReviewPageController" showHeader="false" sidebar="false" standardStylesheets="false">
+    <head>
+        <style>
+            body {
+                font-family: Arial, sans-serif;
+                background-color: #f9f9f9;
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                height: 100vh;
+                margin: 0;
+            }
+            .review-container {
+                background: #fff;
+                padding: 2rem;
+                border-radius: 12px;
+                box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+                width: 100%;
+                max-width: 500px;
+            }
+            h1 {
+                font-size: 1.8rem;
+                margin-bottom: 1rem;
+                text-align: center;
+                color: #333;
+            }
+            label {
+                font-weight: bold;
+                display: block;
+                margin-top: 1rem;
+                color: #444;
+            }
+            input[type="text"],
+            textarea {
+                width: 100%;
+                padding: 0.75rem;
+                margin-top: 0.5rem;
+                border-radius: 6px;
+                border: 1px solid #ccc;
+                font-size: 1rem;
+                box-sizing: border-box;
+            }
+            textarea {
+                resize: vertical;
+                min-height: 100px;
+            }
+            .submit-btn {
+                margin-top: 1.5rem;
+                width: 100%;
+                background-color: #ff5722;
+                color: white;
+                border: none;
+                padding: 0.75rem;
+                font-size: 1rem;
+                border-radius: 6px;
+                cursor: pointer;
+            }
+            .submit-btn:hover {
+                background-color: #e64a19;
+            }
+            .error-message {
+                color: red;
+                text-align: center;
+                margin-bottom: 1rem;
+                font-weight: bold;
+            }
+            .success-message {
+                color: green;
+                text-align: center;
+                margin-bottom: 1rem;
+                font-weight: bold;
+            }
+        </style>
+    </head>
 
-    <apex:outputPanel rendered="{!NOT(invalidToken)}">
-        <h1>Leave a Review</h1>
-        <apex:form>
-            <apex:inputText value="{!reviewerName}" label="Your Name" />
-            <apex:inputTextarea value="{!comments}" label="Comments" />
-            <apex:inputText value="{!rating}" label="Rating (1-5)" />
-            <apex:commandButton value="Submit Review" action="{!submitReview}" />
-        </apex:form>
-    </apex:outputPanel>
+    <body>
+        <div class="review-container">
+            <apex:form >
+                <apex:messages styleClass="error-message" />
+
+                <!-- Preserve the token on postback -->
+                <apex:inputHidden value="{!token}" />
+
+                <h1>Leave a Review</h1>
+
+                <apex:outputPanel rendered="{!invalidToken}">
+                    <p style="color:red; text-align:center;">This review link is invalid or has already been used.</p>
+                </apex:outputPanel>
+
+                <apex:outputPanel rendered="{!reviewSubmittedNow}">
+                    <p class="success-message">Thank you! Your review has been submitted.</p>
+                </apex:outputPanel>
+
+                <apex:outputPanel rendered="{!!invalidToken && !reviewSubmittedNow}">
+                    <label for="name">Your Name</label>
+                    <apex:inputText value="{!reviewerName}" id="name" />
+
+                    <label for="comments">Comments</label>
+                    <apex:inputTextarea value="{!comments}" id="comments" />
+
+                    <label for="rating">Rating (1–5)</label>
+                    <apex:inputText value="{!rating}" id="rating" />
+
+                    <apex:commandButton value="Submit Review" action="{!submitReview}" styleClass="submit-btn" />
+                </apex:outputPanel>
+            </apex:form>
+        </div>
+    </body>
 </apex:page>

@@ -1,58 +1,4 @@
 public with sharing class OrderController {
-    // @AuraEnabled
-    // public static Id createOrder(String customerName, String billingAddress, String phone, String additionalDetails, List<Map<String, Object>> items) {
-    //     Decimal totalAmount = 0;
-    //     List<Order_Item__c> orderItems = new List<Order_Item__c>();
-    //     List<String> orderDetailsLines = new List<String>();
-
-    //     for (Map<String, Object> item : items) {
-    //         Menu_Item__c menuItem = [
-    //             SELECT Price__c 
-    //             FROM Menu_Item__c 
-    //             WHERE Id = :((Id)item.get('Id')) 
-    //             LIMIT 1
-    //         ];
-
-    //         Integer qty = ((Decimal)item.get('Quantity')).intValue();
-    //         Decimal price = menuItem.Price__c;
-    //         Decimal lineTotal = price * qty;
-    //         totalAmount += lineTotal;
-
-    //         Order_Item__c oi = new Order_Item__c();
-    //         oi.Menu_Item__c = (String)item.get('Id');
-    //         oi.Name = (String)item.get('Name');
-    //         oi.Quantity__c = qty;
-    //         // oi.Price__c = price;
-    //         // oi.Total_Price__c = lineTotal;
-
-    //         orderItems.add(oi);
-
-    //         // Build the order details summary line
-    //         orderDetailsLines.add(oi.Name + ' x ' + qty + ' = ₹' + lineTotal);
-    //     }
-
-    //     // Create the order
-    //     Order__c order = new Order__c();
-    //     order.Name = customerName;
-    //     order.Billing_Address__c = billingAddress;
-    //     order.Contact_No__c = phone;
-    //     order.Additional_Details__c = additionalDetails;
-    //     order.Total_Price__c = totalAmount;
-    //     insert order;
-
-    //     // Assign order to each item and insert them
-    //     for (Order_Item__c oi : orderItems) {
-    //         oi.Order__c = order.Id;
-    //     }
-    //     insert orderItems;
-
-    //     // After inserting, update the order with the summary
-    //     String fullDetails = String.join(orderDetailsLines, '\n');
-    //     order.Order_Details__c = fullDetails;
-    //     update order;
-
-    //     return order.Id;
-    // }
 
     @AuraEnabled
     public static List<Id> createOrder(String customerName, String billingAddress, String phone, String additionalDetails, List<Map<String, Object>> items) {
@@ -60,18 +6,15 @@ public with sharing class OrderController {
             throw new AuraHandledException('Item list cannot be empty.');
         }
 
-        // Collect item IDs
         Set<Id> menuItemIds = new Set<Id>();
         for (Map<String, Object> item : items) {
             menuItemIds.add((Id)item.get('Id'));
         }
 
-        // Query Menu_Items with Restaurant
         Map<Id, Menu_Item__c> menuItemMap = new Map<Id, Menu_Item__c>(
             [SELECT Id, Price__c, Restaurant__c, Restaurant__r.Name FROM Menu_Item__c WHERE Id IN :menuItemIds]
         );
 
-        // Group items by Restaurant
         Map<Id, List<Map<String, Object>>> restaurantToItems = new Map<Id, List<Map<String, Object>>>();
         Map<Id, String> restaurantNames = new Map<Id, String>();
 
@@ -90,7 +33,6 @@ public with sharing class OrderController {
 
         List<Id> createdOrderIds = new List<Id>();
 
-        // For each restaurant, create an order
         for (Id restId : restaurantToItems.keySet()) {
             List<Map<String, Object>> restItems = restaurantToItems.get(restId);
             Decimal totalAmount = 0;
@@ -111,8 +53,6 @@ public with sharing class OrderController {
                 oi.Menu_Item__c = itemId;
                 oi.Name = (String)item.get('Name');
                 oi.Quantity__c = qty;
-                // oi.Price__c = price;
-                // oi.Total_Price__c = lineTotal;
                 orderItems.add(oi);
 
                 orderDetailsLines.add(oi.Name + ' x ' + qty + ' = ₹' + lineTotal.setScale(2));
@@ -143,10 +83,6 @@ public with sharing class OrderController {
         return createdOrderIds;
     }
 
-
-
-
-
     @AuraEnabled(cacheable=true)
     public static Map<String, String> fetchCurrentUserData() {
         Map<String, String> result = new Map<String, String>();
@@ -173,21 +109,20 @@ public with sharing class OrderController {
         Id userId = UserInfo.getUserId();
         return [
             SELECT Id, Name, CreatedDate, Status__c, Comments__c, Additional_Details__c,
-                Contact_No__c, Billing_Address__c, Total_Price__c, Order_Details__c
-                // (SELECT Id, Name, Menu_Item__c, Quantity__c FROM Order_Items__r)
+                   Contact_No__c, Billing_Address__c, Total_Price__c, Order_Details__c
             FROM Order__c
             WHERE Restaurant__r.OwnerId = :userId
             ORDER BY CreatedDate DESC
         ];
     }
 
-    @AuraEnabled(cacheable=true)
+    // ✅ Optimized: Single DML without SOQL
+    @AuraEnabled
     public static void updateOrderStatus(Id orderId, String newStatus) {
-        Order__c order = [SELECT Id FROM Order__c WHERE Id = :orderId LIMIT 1];
-        order.Status__c = newStatus;
-        update order;
+        update new Order__c(Id = orderId, Status__c = newStatus);
     }
 
+    // Optional: Uncomment when needed
     // @AuraEnabled(cacheable=true)
     // public static void sendOrderEmail(Id orderId) {
     //     Order__c order = [
